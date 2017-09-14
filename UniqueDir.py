@@ -50,7 +50,7 @@ class UniqueDir:
 			# There are EXISTING directories.  Determine first and last.
 			cmd = 'ls -1 {}/{}-*|sort|head -n 1'
 			cmd_runner(cmd)
-			if (cmd_runner.get_rc == 0)
+			if (cmd_runner.get_rc == 0):
 				first_dir = cmd_runner.get_stdout[0]
 				print('>>> INFO: <first_dir={}>'.format(first_dir))
 			else:
@@ -61,7 +61,17 @@ class UniqueDir:
 				return cnt, first_dir, last_dir
 		
 		# Found first directory, find the last directory
-		
+		cmd = 'ls -1 {}/{}-*|sort|tail -n 1'
+		cmd_runner(cmd)
+		if (cmd_runner.get_rc == 0):
+			last_dir = cmd_runner.get_stdout[0]
+			print('>>> INFO: <first_dir={}>'.format(first_dir))		
+		else:
+			print('>>> ERROR: Cannot determine last directory.  stderr follows:\n')
+			cmd_runner.dump_stderr()
+			cnt = -1
+			last_dir = ""
+			return cnt, first_dir, last_dir
 			
 		
 	def mkdir(self, dir_path = "/tmp", pattern = '__udo', max_dirs = 5):
@@ -77,13 +87,6 @@ class UniqueDir:
 			print('>>> ERROR: {}'.format(msg))
 			return 1 
 		
-			
-			
-				
-		
-			
-    
-   
 def test1():
 	print("Running test1()")
 	return 0
