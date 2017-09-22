@@ -9,15 +9,22 @@ class UniqueDir:
 	
 	def __init__(self):
 		"""
-		Constructor for UniqueDir object. KWR
+		Only constructor for this class.  No parameters
+
 		"""
+		
 		self.pattern = ""
 		return
 	
 	def __verify_dir(self, dir_path):
 		"""
-		Verify the directory exists AND user has r/w access.
+		Verifies input directory exists AND is writeable.
+		
+		:param dir_path: Full path to a directory
+		:return: (return code, return message)
+		:rtype: (int, string)
 		"""
+		
 		rval = 0
 		msg = "*unknown error"
 		if os.path.exists(dir_path):
@@ -33,6 +40,14 @@ class UniqueDir:
 		return (rval, msg)
 		
 	def __find_first_last_dir(self, dir_path, pattern):
+		"""
+		Determines first and last full sub-directory path with given pattern.
+		
+		:param dir_path: Full path to a directory
+		:param pattern: Prefix pattern for new sub-directory
+		:return: (count, first subdirectory, last subdirectory)
+		:rtype: (int, string, string)
+		"""
 		
 		cmd_runner = RunCmd()
 		
@@ -80,7 +95,15 @@ class UniqueDir:
 		return cnt, first_dir, last_dir
 		
 	def mkdir(self, dir_path = "/tmp", pattern = 'dir-', max_dirs = 5):
+		"""
+		Creates a new sub-directory and removes extra sub-directories.
 		
+		:param dir_path: Full path to a directory (default is /tmp)
+		:param pattern: Prefix pattern for new sub-directory (default is 'dir-')
+		:param max_dirs: Maximum sub-directories to leave in dir_path
+		:return: (return code, new sub-directory path)
+		:rtype: (int, string)
+		"""	
 		cmd_runner = RunCmd()
 		
 		self.dir_path = dir_path
@@ -139,23 +162,55 @@ class UniqueDir:
 					print('>>> INFO: Deleted OLDEST directory {}'.format(first_dir))
 			
 		return 0, new_dir		
+	
+	@property
+	def get_dir(self):
+		"""
+		Accessor to new sub-directory path.  Might be null string.
+		
+		:param none
+		:return: new sub-directory path
+		:rtype: string
+		"""	
+		return self.new_dir
 			
 def test1():
+	"""
+	Standalone test 1
+	
+	:param none
+	:return: return code
+	:rtype: int
+	"""	
 	print("Running test1()")
 	t = UniqueDir()
 	rc, new_dir = t.mkdir('/tmp', "kwr540-")
 	if rc == 0:
-		print('>>> INFO: Created new dir <new_dir={}>'.format(new_dir))
+		print('>>> INFO: Created new dir <new_dir={}> <get_dir()={}>'.format(new_dir, t.get_dir))
 		return 0
 	else:
 		print(">>> ERROR: Failed making new directory.")
 		return 1
 		
 def test2():
+	"""
+	Standalone test 2
+	
+	:param none
+	:return: return code
+	:rtype: int
+	"""	
 	print("Running test2()")
 	return 0
 
 def main():
+	"""
+	Main control function for testing
+	
+	:param none
+	:return: return code
+	:rtype: int
+	"""	
 	print("running main()")
 	test1()
 	test2()
@@ -163,6 +218,6 @@ def main():
 	
 if __name__ == "__main__":
 	# execute only if run as a script
-	main()
-	exit(0)
+	rc = main()
+	exit(rc)
 
