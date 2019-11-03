@@ -110,6 +110,7 @@ class UniqueDir:
 		self.pattern = pattern
 		self.made_dir = False
 		self.new_dir = ''
+		self.max_dirs = max_dirs
 		
 		rc,msg = self.__verify_dir(dir_path)
 		if rc == 0:
@@ -146,20 +147,21 @@ class UniqueDir:
 		# New directory created.
 		self.new_dir = new_dir
 		self.made_dir = True
-		
-		# Delete first directory in pattern IF total directories more than max
+	
+		# Delete multiple directories if more than max.  New feature. 
 		if dir_cnt >= max_dirs:
-				
-				# Need to delete the first directory
-				cmd = 'rm -rf {}'.format(first_dir)
-				cmd_runner.run(cmd)
-				if cmd_runner.get_rc != 0:
-					
-					# Could not delete first dir.
-					print('>>> ERROR: Could not delete directory <first_dir={}>'.format(first_dir))
-					return 4, ""
-				else:
-					print('>>> INFO: Deleted OLDEST directory {}'.format(first_dir))
+								
+				remove_dir_1 = int(first_dir[plen:])
+				remove_dir_last = dir_cnt - self.max_dirs + remove_dir_1 + 1
+                                print('>>> DBUG: <remove_dir_1={}> <remove_dir_last={}>'.format(remove_dir_1, remove_dir_last))
+				for j in range(remove_dir_1, remove_dir_last):
+					remove_dir = '{}/{}{num:03d}'.format(dir_path, pattern, num=j)
+					cmd = "rm -rf {}".format(remove_dir)
+					cmd_runner.run(cmd)
+					if cmd_runner.get_rc != 0:
+						print('>>> ERROR: Could not remove directory {}. stderr follows:'.format(remove_dir))
+						cmd_runner.dump_stderr()
+						return 3,''
 			
 		return 0, new_dir		
 	
