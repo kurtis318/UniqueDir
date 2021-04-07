@@ -4,6 +4,15 @@ import os
 from RunCmdPy import RunCmd
 # from Cython.Utility.CConvert import length
 
+def bytes_to_int(bytes):
+    result = 0
+
+    for b in bytes:
+        print('>>> DBUG: <b={}>'.format(b))
+        result = result * 256 + int(b)
+
+    return result
+
 class UniqueDir:
 
 	
@@ -56,15 +65,17 @@ class UniqueDir:
 		
 		# Determine number of potential EXISTING directories
 		cmd = 'find {} -maxdepth 1 -type d -name  "{}*" 2>/dev/null|wc -l'.format(dir_path, pattern)
+
 		cmd_runner.run(cmd)
-		
-		if cmd_runner.rc == 0:
-			cnt = int(cmd_runner.get_stdout[0])
+		rc = int(cmd_runner.rc)
+
+		if rc == 0:
+			cnt = int((cmd_runner.get_stdout)[0])
 			print('>>> INFO: There are {} directories with same pattern'.format(cnt))
 		else:
 			cnt = 0
 		
-		if cnt >0:
+		if cnt > 0:
 			
 			# There are EXISTING directories.  Determine first and last.
 			cmd = 'find {} -maxdepth 1 -type d -name  "{}*" 2>/dev/null|sort|head -n 1'.format(dir_path, pattern)
@@ -121,6 +132,9 @@ class UniqueDir:
 		
 		# Determine number of directories with pattern, first and last directories
 		dir_cnt, first_dir, last_dir = self.__find_first_last_dir(dir_path, pattern)
+  
+		print('>>> DBUG: <max_dirs={}> <dir_cnt={}>.'.format(max_dirs, dir_cnt))
+  
 		n = 0
 		if dir_cnt == 0:
 			
@@ -130,7 +144,7 @@ class UniqueDir:
 			return 1, ""
 		else:
 			
-			# Got first at least 1 existing directory.
+			# Got first, at least 1 existing directory.
 			plen = len(dir_path + pattern + '-')
 			n = int(last_dir[plen:]) + 1
 
@@ -153,7 +167,7 @@ class UniqueDir:
 								
 				remove_dir_1 = int(first_dir[plen:])
 				remove_dir_last = dir_cnt - self.max_dirs + remove_dir_1 + 1
-                                print('>>> DBUG: <remove_dir_1={}> <remove_dir_last={}>'.format(remove_dir_1, remove_dir_last))
+				print('>>> DBUG: <remove_dir_1={}> <remove_dir_last={}>'.format(remove_dir_1, remove_dir_last))
 				for j in range(remove_dir_1, remove_dir_last):
 					remove_dir = '{}/{}{num:03d}'.format(dir_path, pattern, num=j)
 					cmd = "rm -rf {}".format(remove_dir)
